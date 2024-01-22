@@ -3,13 +3,16 @@ const router = express.Router();
 const Navigant = require('../models/Navigant');
 const NavigEnfant = require('../models/NavigEnfant');
 const Bulletin = require('../models/Bulletin');
+const Reclamation=require('../models/Reclamation');
 
 
 // READ - Récupérer tous les Navigants
 router.get('/', async (req, res) => {
   try {
     const navigants = await Navigant.findAll({
-      include: [{ model: Bulletin, as: 'Bulletins' }, { model: NavigEnfant, as: 'NavigEnfants' }]
+      include: [{ model: Bulletin, as: 'Bulletins' },
+       { model: NavigEnfant, as: 'NavigEnfants' },
+       { model: Reclamation, as: 'Reclamations' } ]
     });
     res.json(navigants);
   } catch (error) {

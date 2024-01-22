@@ -49,7 +49,21 @@ router.get('/:num', async (req, res) => {
     res.status(500).json({ error: 'Erreur lors de la récupération de la Réclamation' });
   }
 });
-
+// UPDATE - Mettre à jour une Réclamation par son ID
+router.put('/:num', async (req, res) => {
+  const num = req.params.num;
+  try {
+    const [updatedRows] = await Reclamation.update(req.body, { where: { num } });
+    if (updatedRows > 0) {
+      res.json({ message: 'Réclamation mise à jour avec succès' });
+    } else {
+      res.status(404).json({ error: 'Réclamation non trouvée' });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erreur lors de la mise à jour de la Réclamation' });
+  }
+});
 
 // DELETE - Supprimer une Réclamation par son ID
 router.delete('/:num', async (req, res) => {

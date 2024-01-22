@@ -11,6 +11,11 @@ const Reclamation = sequelize.define('Reclamation', {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    lue:{
+      type:DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    }
    
   });
   
