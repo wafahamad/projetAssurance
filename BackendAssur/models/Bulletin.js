@@ -20,7 +20,6 @@ const Bulletin = sequelize.define('Bulletin', {
   },
   montantDepense: {
     type: DataTypes.FLOAT,
-    allowNull: false,
   },
   dateEnvoiGAT: {
     type: DataTypes.DATE,
