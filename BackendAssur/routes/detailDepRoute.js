@@ -1,11 +1,17 @@
 const express = require('express');
 const router = express.Router();
+const { Sequelize } = require('sequelize');
 const  DetailDepense  = require('../models/DetailDepense');
+const Bulletin = require('../models/Bulletin');
 
 // CREATE - Ajouter un nouveau DetailDepense
 router.post('/ajout', async (req, res) => {
   try {
     const detailDepense = await DetailDepense.create(req.body);
+    await Bulletin.update(
+      { montantDepense: Sequelize.literal(`montantDepense + ${req.body.montant_act_dep}`) },
+      { where: { numBs: req.body.bulletinNum } }
+    );
     res.status(201).json(detailDepense);
   } catch (error) {
     console.error(error);

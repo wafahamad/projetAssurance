@@ -1,11 +1,16 @@
 const express = require('express');
 const router = express.Router();
+const { Sequelize } = require('sequelize');
 const  BordereauGAT  = require('../models/BordereauGAT');
-
+const Bulletin = require('../models/Bulletin');
 // CREATE - Ajouter un nouveau BordereauGAT
 router.post('/ajout', async (req, res) => {
   try {
     const bordereauGAT = await BordereauGAT.create(req.body);
+    await Bulletin.update(
+      { montantRemborse: Sequelize.literal(`montantRemborse + ${req.body.montant_act_rembor}`) },
+      { where: { numBs: req.body.bulletinNum } }
+    );
     res.status(201).json(bordereauGAT);
   } catch (error) {
     console.error(error);

@@ -20,6 +20,7 @@ const Bulletin = sequelize.define('Bulletin', {
   },
   montantDepense: {
     type: DataTypes.FLOAT,
+    defaultValue:0
   },
   dateEnvoiGAT: {
     type: DataTypes.DATE,
@@ -29,6 +30,7 @@ const Bulletin = sequelize.define('Bulletin', {
   },
   montantRemborse: {
     type: DataTypes.FLOAT,
+    defaultValue:0
   },
   status: {
     type: DataTypes.STRING,
@@ -39,4 +41,21 @@ const Bulletin = sequelize.define('Bulletin', {
 Bulletin.hasMany(DetailDepense, { as: 'DetailDepenses', foreignKey: 'bulletinNum',onDelete: 'CASCADE' });
 Bulletin.hasMany(BordereauGAT, { as: 'BordereauGATs', foreignKey: 'bulletinNum' ,onDelete: 'CASCADE'});
 
+Bulletin.beforeUpdate(async (bulletin, options) => {
+  // Calculer le montant total des détails de dépense
+  const montantTotal = await DetailDepense.sum('montant_act_dep', {
+    where: {
+      bulletinNum: bulletin.numBs,
+    },
+  });
+  const montantTotalRemb = await BordereauGAT.sum('montant_act_rembor',{
+    where: {
+      bulletinNum: bulletin.numBs,
+    },
+  });
+
+  // Mettre à jour le montantDepense
+  bulletin.montantDepense = montantTotal;
+  bulletin.montantRemborse = montantTotalRemb;
+});
 module.exports = Bulletin;
