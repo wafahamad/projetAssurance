@@ -70,7 +70,16 @@ router.put('/updateBord/:idB', async (req, res) => {
 router.delete('/deleteBord/:idB', async (req, res) => {
   const idB = req.params.idB;
   try {
+    const bordereauGAT = await BordereauGAT.findOne({ where: { idB } });
+    if (!bordereauGAT) {
+      return res.status(404).json({ error: 'BordereauGAT non trouvé' });
+    }
     const deletedRows = await BordereauGAT.destroy({ where: { idB } });
+    await Bulletin.update(
+      { montantRemborse: Sequelize.literal(`montantRemborse - ${bordereauGAT.montant_act_rembor}`) },
+      { where: { numBs: bordereauGAT.bulletinNum } }
+    );
+
     if (deletedRows > 0) {
       res.json({ message: 'BordereauGAT supprimé avec succès' });
     } else {
@@ -81,5 +90,6 @@ router.delete('/deleteBord/:idB', async (req, res) => {
     res.status(500).json({ error: 'Erreur lors de la suppression du BordereauGAT' });
   }
 });
+
 
 module.exports = router;

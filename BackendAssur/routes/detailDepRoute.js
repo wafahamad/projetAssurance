@@ -71,7 +71,15 @@ router.put('/update/:idD', async (req, res) => {
 router.delete('/delete/:idD', async (req, res) => {
   const idD = req.params.idD;
   try {
+    const detail = await DetailDepense.findOne({ where: { idD } });
+    if (!detail) {
+      return res.status(404).json({ error: 'detail depensé non trouvé' });
+    }
     const deletedRows = await DetailDepense.destroy({ where: { idD } });
+    await Bulletin.update(
+      { montantDepense: Sequelize.literal(`montantDepense - ${detail.montant_act_dep}`) },
+      { where: { numBs: detail.bulletinNum } }
+    );
     if (deletedRows > 0) {
       res.json({ message: 'DetailDepense supprimé avec succès' });
     } else {

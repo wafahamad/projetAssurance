@@ -8,11 +8,24 @@ const { generateToken } = require('../utils/jwt');
 const router = express.Router();
 
 router.post('/register', async (req, res) => {
-  const { matricule, motPasse ,nom,dateNaissance,numCompte,fonction,marie,nomConjoint} = req.body;
+  const { matricule, motPasse, nom, dateNaissance, numCompte, fonction, marie, nomConjoint } = req.body;
 
   try {
+    console.log('Original Password:', motPasse);
     const hashedPassword = await bcrypt.hash(motPasse, 10);
-    const navigant = new Navigant({ matricule, motPasse: hashedPassword ,nom,dateNaissance,numCompte,fonction,marie,nomConjoint});
+    console.log('Hashed Password:', hashedPassword);
+
+    const navigant = new Navigant({
+      matricule,
+      motPasse:hashedPassword,
+      nom,
+      dateNaissance,
+      numCompte,
+      fonction,
+      marie,
+      nomConjoint,
+    });
+
     await navigant.save();
     res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
@@ -25,18 +38,20 @@ router.post('/login', async (req, res) => {
   const { matricule, motPasse } = req.body;
 
   try {
-    const navigant = await Navigant.findOne({ matricule });
+    const navigant = await Navigant.findOne({  where: {
+      matricule,
+    }, });
 
     if (!navigant) {
       return res.status(401).json({ error: 'Invalid matricule' });
     }
-
+    console.log('Hashed Password in Database:', navigant.motPasse);
+    console.log('nom navig',navigant.nom);
+    console.log('Password Attempted:', motPasse);
     const passwordMatch = await bcrypt.compare(motPasse, navigant.motPasse);
-
     if (!passwordMatch) {
       return res.status(401).json({ error: 'Invalid password' });
     }
-
     const token = generateToken(navigant);
     res.json({ token });
   } catch (error) {
